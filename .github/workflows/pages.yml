@@ -4,21 +4,32 @@ on:
     branches: ["main"]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  actions: write
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  enable-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Enable Pages site
+        run: |
+          for i in 1 2 3 4 5; do
+            CODE=$(curl -s -o /tmp/pages_resp.json -w "%{http_code}" -X POST \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${{ github.repository }}/pages" \
+              -d '{"source":{"branch":"main","path":"/"},"build_type":"legacy"}')
+            echo "attempt $i: $CODE"
+            cat /tmp/pages_resp.json
+            if [ "$CODE" = "201" ] || [ "$CODE" = "409" ]; then
+              break
+            fi
+            sleep 5
+          done
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
