@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>潔特務清潔公司 - 現代科技風預約系統</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            tech: {
+              bg: '#0a0f1d',
+              card: '#111827',
+              border: '#1f2937',
+              accent: '#06b6d4', // Cyan
+              glow: '#3b82f6',   // Blue
+              neon: '#10b981',   // Emerald
+              dark: '#030712'
+            }
+          },
+          boxShadow: {
+            'neon-cyan': '0 0 15px rgba(6, 182, 212, 0.4)',
+            'neon-blue': '0 0 20px rgba(59, 130, 246, 0.5)',
+            'neon-green': '0 0 15px rgba(16, 185, 129, 0.4)'
+          }
+        }
+      }
+    }
+  </script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0a0f1d;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1f2937;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #06b6d4;
+    }
+    
+    /* Background grid effect */
+    .bg-grid {
+      background-size: 30px 30px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="bg-tech-bg text-gray-100 font-sans min-h-screen bg-grid flex flex-col justify-between selection:bg-tech-accent selection:text-black">
+
+  <!-- Header Section -->
+  <header class="border-b border-gray-800 bg-tech-dark/80 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+      <!-- Logo & Brand Name -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="resetToStep1()">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-tech-accent to-tech-glow p-0.5 shadow-neon-cyan flex items-center justify-center">
+          <div class="w-full h-full bg-tech-dark rounded-[10px] flex items-center justify-center">
+            <i class="fa-solid font-bold text-tech-accent text-xl">JT</i>
+          </div>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-xl tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-sky-300 to-blue-500">
+            潔特務 CLEAN AGENT
+          </h1>
+          <p class="text-xs text-gray-400 tracking-widest uppercase">智能高規格清潔隊</p>
+        </div>
+      </div>
+
+      <!-- Admin Entrance Button -->
+      <button onclick="openAdminModal()" class="px-3.5 py-2 rounded-lg bg-gray-800/80 hover:bg-gray-700 border border-gray-700 hover:border-tech-accent text-xs font-medium text-gray-300 hover:text-tech-accent transition-all duration-200 flex items-center space-x-2 shadow-sm">
+        <i class="fa-solid fa-user-shield text-tech-accent"></i>
+        <span>後台管理</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Booking Container -->
+  <main class="max-w-4xl mx-auto px-4 py-8 w-full flex-grow">
+    
+    <!-- Step Progress Indicator -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between relative max-w-xl mx-auto">
+        <!-- Connecting Line -->
+        <div class="absolute top-1/2 left-0 w-full h-0.5 bg-gray-800 -translate-y-1/2 -z-10"></div>
+        <div id="progress-line" class="absolute top-1/2 left-0 h-0.5 bg-gradient-to-r from-tech-accent to-tech-glow -translate-y-1/2 -z-10 transition-all duration-300" style="width: 0%;"></div>
+
+        <!-- Step 1 Dot -->
+        <div class="flex flex-col items-center">
+          <div id="step-dot-1" class="w-10 h-10 rounded-full bg-tech-accent text-black font-bold flex items-center justify-center shadow-neon-cyan transition-all duration-300">
+            1
+          </div>
+          <span id="step-text-1" class="text-xs font-semibold mt-2 text-tech-accent">選擇日期</span>
+        </div>
+
+        <!-- Step 2 Dot -->
+        <div class="flex flex-col items-center">
+          <div id="step-dot-2" class="w-10 h-10 rounded-full bg-gray-800 text-gray-400 font-bold border border-gray-700 flex items-center justify-center transition-all duration-300">
+            2
+          </div>
+          <span id="step-text-2" class="text-xs font-semibold mt-2 text-gray-500">選擇時間與方案</span>
+        </div>
+
+        <!-- Step 3 Dot -->
+        <div class="flex flex-col items-center">
+          <div id="step-dot-3" class="w-10 h-10 rounded-full bg-gray-800 text-gray-400 font-bold border border-gray-700 flex items-center justify-center transition-all duration-300">
+            3
+          </div>
+          <span id="step-text-3" class="text-xs font-semibold mt-2 text-gray-500">填寫資料</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Card View Container -->
+    <div class="bg-tech-card/90 backdrop-blur-xl border border-gray-800 rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+      <div class="absolute -top-24 -right-24 w-48 h-48 bg-tech-accent/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-tech-glow/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- STEP 1: SELECT DATE -->
+      <div id="step-1" class="space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-gray-800 pb-4 gap-2">
+          <div>
+            <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+              <i class="fa-regular fa-calendar-check text-tech-accent"></i>
+              <span>【選擇預約日期】</span>
+            </h2>
+            <p class="text-xs text-tech-accent/80 mt-1">
+              ✨ 快來挑選您的專屬特務服務日期～ (週一 ～ 週日開放預約)
+            </p>
+          </div>
+          <!-- Month Selector Header -->
+          <div class="flex items-center space-x-4 bg-tech-dark/60 border border-gray-800 px-3 py-1.5 rounded-lg self-start md:self-auto">
+            <button onclick="changeMonth(-1)" class="text-gray-400 hover:text-tech-accent p-1 transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
+            <span id="calendar-month-year" class="text-sm font-semibold tracking-wider text-gray-200">2026年 8月</span>
+            <button onclick="changeMonth(1)" class="text-gray-400 hover:text-tech-accent p-1 transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+
+        <!-- Service Modes Display -->
+        <div class="bg-tech-dark/40 border border-gray-800/80 rounded-xl p-3.5 space-y-2">
+          <div class="text-xs text-tech-accent font-semibold flex items-center">
+            <i class="fa-solid fa-clock mr-1.5"></i>潔特務可預約服務時長方案：
+          </div>
+          <div id="preview-plans-badges" class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-gray-300">
+            <!-- Dynamic Badges From Plans -->
+          </div>
+        </div>
+
+        <!-- Calendar Grid -->
+        <div>
+          <!-- Day Headers -->
+          <div class="grid grid-cols-7 gap-2 text-center text-xs font-semibold text-gray-400 mb-2">
+            <div class="text-rose-400">日</div>
+            <div>一</div>
+            <div>二</div>
+            <div>三</div>
+            <div>四</div>
+            <div>五</div>
+            <div class="text-sky-400">六</div>
+          </div>
+          <!-- Days Grid Container -->
+          <div id="calendar-days" class="grid grid-cols-7 gap-2">
+            <!-- Dynamic Injection -->
+          </div>
+        </div>
+
+        <div class="text-right pt-2">
+          <button id="btn-to-step2" disabled onclick="goToStep(2)" class="w-full md:w-auto px-8 py-3 rounded-xl bg-gray-800 text-gray-500 font-semibold cursor-not-allowed transition-all duration-300 flex items-center justify-center space-x-2">
+            <span>前往選擇服務時間與方案</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 2: SELECT DURATION & TIME -->
+      <div id="step-2" class="space-y-6 hidden">
+        <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-gray-800 pb-4 gap-2">
+          <div>
+            <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+              <i class="fa-regular fa-clock text-tech-accent"></i>
+              <span>【選擇時間與方案】</span>
+            </h2>
+            <p class="text-xs text-tech-accent/80 mt-1">
+              請選擇預計的清潔時長方案與偏好的抵達時間
+            </p>
+          </div>
+          <div class="text-xs text-gray-400 bg-tech-dark/60 border border-gray-800 px-3 py-1.5 rounded-lg self-start md:self-auto">
+            已選日期：<span id="selected-date-display" class="text-tech-accent font-bold">----/--/--</span>
+          </div>
+        </div>
+
+        <!-- Duration Mode Selection Dynamic Grid -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 mb-2.5">1. 請選擇預約時長方案：</label>
+          <div id="duration-options-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+            <!-- Dynamic Injection -->
+          </div>
+        </div>
+
+        <!-- Plan Description Box (Sub-text explanation) -->
+        <div id="plan-description-box" class="bg-tech-dark/80 border border-gray-800 p-4 rounded-xl text-xs space-y-2 transition-all">
+          <div class="text-tech-accent font-bold flex items-center">
+            <i class="fa-solid fa-circle-info mr-1.5"></i>
+            <span id="plan-desc-title">方案說明</span>
+          </div>
+          <div id="plan-desc-text" class="text-gray-300 space-y-1 leading-relaxed">
+            點擊上方方案檢視詳細服務項目說明與注意事項...
+          </div>
+        </div>
+
+        <!-- Preferred Arrival Time Slots -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 mb-2.5">2. 請選擇人員抵達時間段：</label>
+          
+          <div class="space-y-4">
+            <div>
+              <h3 class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider flex items-center">
+                <i class="fa-sun text-amber-400 mr-2"></i> 上午時段
+              </h3>
+              <div id="am-slots-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                <!-- AM Slots Dynamic -->
+              </div>
+            </div>
+
+            <div class="pt-2">
+              <h3 class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider flex items-center">
+                <i class="fa-moon text-indigo-400 mr-2"></i> 下午時段
+              </h3>
+              <div id="pm-slots-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                <!-- PM Slots Dynamic -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex items-center justify-between pt-4 border-t border-gray-800 gap-4">
+          <button onclick="goToStep(1)" class="px-6 py-3 rounded-xl border border-gray-700 text-gray-300 hover:bg-gray-800 font-semibold transition-all duration-200">
+            <i class="fa-solid fa-arrow-left mr-2"></i>返回日期
+          </button>
+          <button id="btn-to-step3" disabled onclick="goToStep(3)" class="px-8 py-3 rounded-xl bg-gray-800 text-gray-500 font-semibold cursor-not-allowed transition-all duration-300 flex items-center space-x-2">
+            <span>進入下一步填寫資料</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 3: FILL INFORMATION -->
+      <div id="step-3" class="space-y-6 hidden">
+        <div class="border-b border-gray-800 pb-4">
+          <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+            <i class="fa-regular fa-id-card text-tech-accent"></i>
+            <span>【填寫預約資料】</span>
+          </h2>
+          <p class="text-xs text-gray-400 mt-1">
+            完成後系統將引導複製預約詳細內容，並直接前往潔特務官方 LINE 客服頁面。
+          </p>
+        </div>
+
+        <!-- Booking Summary Box -->
+        <div class="bg-tech-dark/80 border border-tech-accent/30 rounded-xl p-4 space-y-2">
+          <div class="text-xs text-tech-accent font-semibold tracking-wider uppercase">預約資訊確認</div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+            <div class="text-gray-300">日期：<span id="summary-date" class="text-white font-bold"></span></div>
+            <div class="text-gray-300">方案：<span id="summary-duration" class="text-tech-accent font-bold"></span></div>
+            <div class="text-gray-300">時間：<span id="summary-slots" class="text-white font-bold"></span></div>
+          </div>
+        </div>
+
+        <!-- Form Fields -->
+        <form id="booking-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">姓名 <span class="text-rose-500">*</span></label>
+            <input type="text" id="cust-name" required placeholder="請輸入您的真實姓名" class="w-full bg-tech-dark border border-gray-700 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent rounded-xl px-4 py-2.5 text-sm text-gray-100 outline-none transition-all">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">聯絡電話 <span class="text-rose-500">*</span></label>
+            <input type="tel" id="cust-phone" required placeholder="例如：0912345678" class="w-full bg-tech-dark border border-gray-700 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent rounded-xl px-4 py-2.5 text-sm text-gray-100 outline-none transition-all">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">服務項目 <span class="text-rose-500">*</span></label>
+            <select id="cust-service" required class="w-full bg-tech-dark border border-gray-700 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent rounded-xl px-4 py-2.5 text-sm text-gray-100 outline-none transition-all">
+              <option value="" disabled selected>請選擇清潔服務類別</option>
+              <option value="居家定期清潔">居家定期清潔</option>
+              <option value="裝潢後細清特務組">裝潢後細清特務組</option>
+              <option value="冷氣/家電深層拆洗">冷氣/家電深層拆洗</option>
+              <option value="空屋/搬家前後清潔">空屋/搬家前後清潔</option>
+              <option value="辦公室/商業空間清潔">辦公室/商業空間清潔</option>
+              <option value="床墊/沙發高壓除蟎">床墊/沙發高壓除蟎</option>
+              <option value="其它服務">其它服務</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">服務地址 <span class="text-rose-500">*</span></label>
+            <input type="text" id="cust-address" required placeholder="請輸入完整清潔地址" class="w-full bg-tech-dark border border-gray-700 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent rounded-xl px-4 py-2.5 text-sm text-gray-100 outline-none transition-all">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">備註說明 (選填)</label>
+            <textarea id="cust-notes" rows="2" placeholder="特殊清潔需求、寵物告知或方便聯絡時間..." class="w-full bg-tech-dark border border-gray-700 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent rounded-xl px-4 py-2.5 text-sm text-gray-100 outline-none transition-all resize-none"></textarea>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex items-center justify-between pt-4 border-t border-gray-800 gap-4">
+            <button type="button" onclick="goToStep(2)" class="px-6 py-3 rounded-xl border border-gray-700 text-gray-300 hover:bg-gray-800 font-semibold transition-all duration-200">
+              <i class="fa-solid fa-arrow-left mr-2"></i>返回選擇時間
+            </button>
+            <button type="submit" class="px-8 py-3 rounded-xl bg-gradient-to-r from-tech-accent to-tech-glow hover:shadow-neon-cyan text-black font-bold transition-all duration-300 flex items-center space-x-2 cursor-pointer">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>確認送出並前往 LINE</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- SUCCESS POPUP MODAL -->
+  <div id="success-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-tech-card border border-tech-accent/60 w-full max-w-lg rounded-2xl p-6 shadow-neon-cyan relative space-y-5">
+      <div class="text-center space-y-2">
+        <div class="w-12 h-12 bg-tech-accent/20 rounded-full flex items-center justify-center mx-auto text-tech-accent text-2xl">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white">預約資料已成功建立！</h3>
+        <p class="text-xs text-gray-400">請複製下方預約單，並點擊按鈕前往潔特務 LINE 貼上即可完成預約！</p>
+      </div>
+
+      <!-- Preview Copy Area -->
+      <div class="bg-tech-dark p-3.5 rounded-xl border border-gray-800 text-xs text-gray-300 font-mono space-y-1 overflow-x-auto max-h-48 scrollbar-thin">
+        <pre id="modal-copy-preview" class="whitespace-pre-wrap leading-relaxed"></pre>
+      </div>
+
+      <!-- Buttons -->
+      <div class="space-y-3 pt-2">
+        <button onclick="copyModalContent()" class="w-full py-3 rounded-xl bg-tech-accent hover:bg-cyan-400 text-black font-bold transition-all flex items-center justify-center space-x-2 shadow-neon-cyan">
+          <i class="fa-regular fa-copy"></i>
+          <span id="copy-btn-text">一鍵複製預約單內容</span>
+        </button>
+
+        <a id="line-direct-link" href="https://lin.ee/TBAzd3A" target="_blank" rel="noopener noreferrer" class="w-full py-3 rounded-xl bg-[#00B900] hover:bg-[#009900] text-white font-bold transition-all flex items-center justify-center space-x-2 block text-center">
+          <i class="fa-brands fa-line text-lg"></i>
+          <span>開啟潔特務 LINE 官方帳號</span>
+        </a>
+
+        <button onclick="closeSuccessModal()" class="w-full py-2 text-xs text-gray-500 hover:text-gray-300 transition-colors">
+          關閉視窗 / 返回首頁
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-gray-800/80 bg-tech-dark py-6 text-center text-xs text-gray-500">
+    <p>© 2026 潔特務清潔公司 Clean Agent Co. All Rights Reserved.</p>
+  </footer>
+
+  <!-- Notification Toast Container -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 max-w-md bg-tech-card border border-tech-accent/50 text-white px-5 py-3.5 rounded-xl shadow-neon-cyan flex items-center space-x-3 pointer-events-none">
+    <i class="fa-solid fa-circle-check text-tech-accent text-lg"></i>
+    <span id="toast-message" class="text-sm font-medium">提示訊息</span>
+  </div>
+
+  <!-- ADMIN LOGIN & CONTROL MODAL -->
+  <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-tech-card border border-gray-700 w-full max-w-4xl rounded-2xl p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
+      <!-- Close Button -->
+      <button onclick="closeAdminModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-gray-800 pb-4 mb-4">
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 rounded-lg bg-tech-accent/20 flex items-center justify-center text-tech-accent">
+            <i class="fa-solid fa-user-gear"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-white">潔特務 - 後台管理系統</h3>
+            <p class="text-xs text-gray-400">預約紀錄查詢、服務方案與說明管理、時段封鎖</p>
+          </div>
+        </div>
+        <button id="admin-logout-btn" onclick="logoutAdmin()" class="hidden px-3 py-1.5 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white border border-rose-500/30 text-xs font-semibold transition-all mr-8">
+          <i class="fa-solid fa-right-from-bracket mr-1"></i>登出後台
+        </button>
+      </div>
+
+      <!-- Password Login View -->
+      <div id="admin-login-view" class="py-8 space-y-4 max-w-md mx-auto w-full">
+        <p class="text-center text-sm text-gray-300">請輸入管理員密碼以進入後台</p>
+        <div class="relative">
+          <input type="password" id="admin-pass-input" placeholder="請輸入管理員密碼" onkeydown="if(event.key==='Enter') checkAdminPassword()" class="w-full bg-tech-dark border border-gray-700 focus:border-tech-accent rounded-xl px-4 py-3 text-sm text-white outline-none text-center tracking-widest">
+          <button type="button" onclick="togglePasswordVisibility('admin-pass-input', 'toggle-login-pass-icon')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white p-1">
+            <i id="toggle-login-pass-icon" class="fa-solid fa-eye"></i>
+          </button>
+        </div>
+        <button onclick="checkAdminPassword()" class="w-full py-3 rounded-xl bg-tech-accent hover:bg-cyan-400 text-black font-bold transition-all shadow-neon-cyan">
+          驗證登入
+        </button>
+      </div>
+
+      <!-- Admin Control Panel Content View -->
+      <div id="admin-panel-view" class="hidden flex-grow overflow-y-auto space-y-6 pr-1">
+        <!-- Tabs -->
+        <div class="flex border-b border-gray-800 text-xs font-semibold gap-4">
+          <button onclick="switchAdminTab('records')" id="tab-btn-records" class="pb-2 text-tech-accent border-b-2 border-tech-accent transition-all">
+            <i class="fa-solid fa-list-check mr-1"></i>預約紀錄管理
+          </button>
+          <button onclick="switchAdminTab('plans')" id="tab-btn-plans" class="pb-2 text-gray-400 hover:text-gray-200 transition-all">
+            <i class="fa-solid fa-boxes-packing mr-1"></i>預約時長方案與小字說明管理
+          </button>
+          <button onclick="switchAdminTab('settings')" id="tab-btn-settings" class="pb-2 text-gray-400 hover:text-gray-200 transition-all">
+            <i class="fa-solid fa-clock-rotate-left mr-1"></i>封鎖時段與密碼設定
+          </button>
+        </div>
+
+        <!-- TAB 1: BOOKING RECORDS -->
+        <div id="admin-tab-records" class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-gray-400">目前總預約數：<span id="records-count" class="text-tech-accent font-bold">0</span> 筆</span>
+            <button onclick="clearAllDataPrompt()" class="text-xs text-rose-400 hover:text-rose-300">清空所有預約紀錄</button>
+          </div>
+          <div class="overflow-x-auto border border-gray-800 rounded-xl">
+            <table class="w-full text-left text-xs text-gray-300">
+              <thead class="bg-tech-dark text-gray-400 border-b border-gray-800">
+                <tr>
+                  <th class="p-3">日期 / 方案與時段</th>
+                  <th class="p-3">客戶姓名</th>
+                  <th class="p-3">服務項目</th>
+                  <th class="p-3">電話 / 地址</th>
+                  <th class="p-3 text-center">操作</th>
+                </tr>
+              </thead>
+              <tbody id="admin-records-tbody" class="divide-y divide-gray-800/60">
+                <!-- Records injected dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 2: DURATION PLANS & SUBTEXT MANAGEMENT -->
+        <div id="admin-tab-plans" class="space-y-6 hidden">
+          <div class="flex items-center justify-between">
+            <h4 class="text-sm font-bold text-white flex items-center">
+              <i class="fa-solid fa-layer-group text-tech-accent mr-2"></i>時長方案列表 (前端顯示)
+            </h4>
+            <button onclick="openPlanEditModal(null)" class="px-3 py-1.5 bg-tech-accent hover:bg-cyan-400 text-black font-bold rounded-lg text-xs transition-colors">
+              <i class="fa-solid fa-plus mr-1"></i>新增預約方案
+            </button>
+          </div>
+
+          <!-- Plans List Cards -->
+          <div id="admin-plans-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Dynamic Plans Injection -->
+          </div>
+        </div>
+
+        <!-- TAB 3: BLOCK SLOTS & PASSWORD -->
+        <div id="admin-tab-settings" class="space-y-6 hidden">
+          <!-- Manual Block Slots Section -->
+          <div class="bg-tech-dark/60 p-4 rounded-xl border border-gray-800 space-y-4">
+            <h4 class="text-sm font-bold text-white flex items-center">
+              <i class="fa-solid fa-ban text-rose-400 mr-2"></i>管理者手動封鎖特定日期/時段
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+              <div>
+                <label class="block text-gray-400 mb-1">選擇封鎖日期</label>
+                <input type="date" id="block-date-input" class="bg-tech-card border border-gray-700 rounded p-2 text-white w-full">
+              </div>
+              <div>
+                <label class="block text-gray-400 mb-1">選擇時段 (或填 全天)</label>
+                <input type="text" id="block-time-input" placeholder="例: 08:30-12:00 或 全天" class="bg-tech-card border border-gray-700 rounded p-2 text-white w-full">
+              </div>
+              <div class="flex items-end">
+                <button onclick="addBlockSlot()" class="w-full py-2 bg-rose-600 hover:bg-rose-500 text-white font-semibold rounded text-xs transition-colors">
+                  新增封鎖紀錄
+                </button>
+              </div>
+            </div>
+
+            <!-- Block List -->
+            <div class="pt-2">
+              <span class="text-xs text-gray-400 block mb-2">目前手動封鎖清單：</span>
+              <ul id="block-list-ul" class="space-y-2 text-xs">
+                <!-- Block items injected here -->
+              </ul>
+            </div>
+          </div>
+
+          <!-- Change Password Area -->
+          <div class="bg-tech-dark/60 p-4 rounded-xl border border-gray-800 space-y-3 text-xs">
+            <h4 class="text-sm font-bold text-white flex items-center">
+              <i class="fa-solid fa-key text-tech-accent mr-2"></i>修改後台登入密碼
+            </h4>
+            <p class="text-gray-400">修改密碼後將立即生效，更新後可點擊右上角「登出後台」進行測試。</p>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+              <div class="relative flex-grow">
+                <input type="password" id="new-admin-pass" placeholder="請輸入新密碼" onkeydown="if(event.key==='Enter') updateAdminPassword()" class="bg-tech-card border border-gray-700 focus:border-tech-accent rounded-xl px-4 py-2.5 text-white w-full outline-none">
+                <button type="button" onclick="togglePasswordVisibility('new-admin-pass', 'toggle-new-pass-icon')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white p-1">
+                  <i id="toggle-new-pass-icon" class="fa-solid fa-eye"></i>
+                </button>
+              </div>
+              <button onclick="updateAdminPassword()" class="px-5 py-2.5 bg-tech-accent hover:bg-cyan-400 text-black font-bold rounded-xl transition-all shadow-neon-cyan flex-shrink-0">
+                更新密碼
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAN ADD/EDIT SUB-MODAL -->
+  <div id="plan-edit-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-tech-card border border-gray-700 w-full max-w-lg rounded-2xl p-6 shadow-2xl relative space-y-4">
+      <button onclick="closePlanEditModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+
+      <h3 id="plan-modal-title" class="text-lg font-bold text-white border-b border-gray-800 pb-2">新增/修改時長方案</h3>
+
+      <form id="plan-form" onsubmit="savePlanItem(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="edit-plan-id">
+
+        <div>
+          <label class="block text-gray-300 font-semibold mb-1">方案名稱 <span class="text-rose-500">*</span></label>
+          <input type="text" id="edit-plan-name" required placeholder="例如：兩人半天3.5小時" class="w-full bg-tech-dark border border-gray-700 rounded-lg p-2.5 text-white outline-none focus:border-tech-accent">
+        </div>
+
+        <div>
+          <label class="block text-gray-300 font-semibold mb-1">時長標籤標題 <span class="text-rose-500">*</span></label>
+          <input type="text" id="edit-plan-duration" required placeholder="例如：時長：3.5 小時 或 彈性/全天" class="w-full bg-tech-dark border border-gray-700 rounded-lg p-2.5 text-white outline-none focus:border-tech-accent">
+        </div>
+
+        <div>
+          <label class="block text-gray-300 font-semibold mb-1">選擇 Icon 圖示風格</label>
+          <select id="edit-plan-icon" class="w-full bg-tech-dark border border-gray-700 rounded-lg p-2.5 text-white outline-none focus:border-tech-accent">
+            <option value="fa-bolt">⚡ 閃電 (半天組)</option>
+            <option value="fa-star">⭐ 星星 (全天組)</option>
+            <option value="fa-shield-halved">🏆 盾牌 (整天深層)</option>
+            <option value="fa-magnifying-glass">🔍 放大鏡 (現場評估)</option>
+            <option value="fa-clock">⏰ 鐘擺</option>
+            <option value="fa-broom">🧹 掃帚</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-gray-300 font-semibold mb-1">方案底下的服務說明小字 (每行代表一條重點說明)</label>
+          <textarea id="edit-plan-desc" rows="4" placeholder="請輸入補充說明內容，每換一行會自動呈現為一條小字點位...&#10;例：適合 20 坪內居家定期保養&#10;例：配備兩名專業特務人員同時服務" class="w-full bg-tech-dark border border-gray-700 rounded-lg p-2.5 text-white outline-none focus:border-tech-accent resize-none"></textarea>
+        </div>
+
+        <div class="flex justify-end space-x-2 pt-3 border-t border-gray-800">
+          <button type="button" onclick="closePlanEditModal()" class="px-4 py-2 border border-gray-700 rounded-lg text-gray-300 hover:bg-gray-800">取消</button>
+          <button type="submit" class="px-5 py-2 bg-tech-accent hover:bg-cyan-400 text-black font-bold rounded-lg shadow-neon-cyan">儲存方案設定</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JavaScript Logic -->
+  <script>
+    const LINE_OFFICIAL_URL = "https://lin.ee/TBAzd3A";
+
+    const DEFAULT_CONFIG = {
+      adminPassword: 'clean123'
+    };
+
+    // Default Duration Plans with Sub-texts
+    const DEFAULT_PLANS = [
+      {
+        id: 'plan_1',
+        name: '兩人半天3.5小時',
+        durationText: '時長：3.5 小時',
+        icon: 'fa-bolt',
+        descLines: [
+          '適合 20~30 坪常規居家清潔與定期維護',
+          '配置 2 名專業特務清潔人員，快速高效',
+          '重點加強客廳、浴室與廚房表面去污',
+          '服務時段： 8:30–12:00 或 13:00–16:30（二擇一）',
+          '總費用：$4,200'
+        ]
+      },
+      {
+        id: 'plan_2',
+        name: '兩人一天7小時',
+        durationText: '時長：7 小時',
+        icon: 'fa-star',
+        descLines: [
+          '適合 35 坪以上大坪數或深度全屋打掃',
+          '配置 2 名專業人員全天深度服務',
+          '包含窗戶內側、櫃體表面及衛浴深層除黴',
+          '清潔範圍： 廁所｜地板｜樓梯｜廚房｜客製化服務',
+          '＋ 玻璃｜車庫｜鐵卷門｜挑高空間可輪流安排維護',
+          '服務時段： 8:30–16:30',
+          '總費用〈優惠〉：$8,000'
+        ]
+      },
+      {
+        id: 'plan_3',
+        name: '現場評估',
+        durationText: '專人免費到府估價',
+        icon: 'fa-magnifying-glass',
+        descLines: [
+          '針對特殊格局、辦公室、商業空間或裝潢細清',
+          '石材保養＆研磨拋光',
+          '洗床除塵蟎＆地毯＆沙發清潔保養',
+          '外牆高壓清洗',
+          '洗衣機＆冷氣機深度清潔',
+          '派專人到府免費實地勘查與精準報價',
+          '評估完成後再安排確切施工日期與人力'
+        ]
+      },
+      {
+        id: 'plan_4',
+        name: '新屋入住住戶優惠方案',
+        durationText: '整天深層項目',
+        icon: 'fa-shield-halved',
+        descLines: [
+          '恭喜您入住新家！新家第一步，交給專業的潔特務',
+          '裝潢完成、家具進場前，正是清潔最重要的時機。',
+          '施工後留下的粉塵、木屑、殘膠、油漆痕跡與細小髒污，往往不是一般日常清潔可以處理。潔特務清潔推出「新屋入住住戶專屬優惠」',
+          '讓您不用自己花時間清理，入住前一次整理到位，輕鬆迎接全新的家。',
+          '專屬特務團隊全天候包場施工處理',
+          '現場「免費估價」'
+        ]
+      }
+    ];
+
+    let appConfig = JSON.parse(localStorage.getItem('JT_CONFIG')) || DEFAULT_CONFIG;
+    let appointments = JSON.parse(localStorage.getItem('JT_APPOINTMENTS')) || [];
+    let blockedSlots = JSON.parse(localStorage.getItem('JT_BLOCKED_SLOTS')) || [];
+    let durationPlans = JSON.parse(localStorage.getItem('JT_PLANS_V3')) || DEFAULT_PLANS;
+
+    let isAdminLoggedIn = false;
+
+    // Selection State
+    let selectedDateStr = '';
+    let selectedDuration = ''; 
+    let selectedTimeSlot = ''; 
+    let calendarCurrentDate = new Date();
+    let currentFormattedBookingText = '';
+
+    const AM_TIME_SLOTS = ['08:00-08:30', '08:30-09:00', '09:00-09:30', '09:30-10:00', '10:00-10:30', '10:30-11:00'];
+    const PM_TIME_SLOTS = ['13:00-13:30', '13:30-14:00', '14:00-14:30', '14:30-15:00', '15:00-15:30', '15:30-16:00'];
+
+    window.onload = function() {
+      renderCalendar();
+      renderFrontendPlansPreview();
+      renderFrontendDurationOptions();
+    };
+
+    function saveState() {
+      localStorage.setItem('JT_CONFIG', JSON.stringify(appConfig));
+      localStorage.setItem('JT_APPOINTMENTS', JSON.stringify(appointments));
+      localStorage.setItem('JT_BLOCKED_SLOTS', JSON.stringify(blockedSlots));
+      localStorage.setItem('JT_PLANS_V3', JSON.stringify(durationPlans));
+    }
+
+    // ==========================================
+    // RENDER FRONTEND PLANS
+    // ==========================================
+    function renderFrontendPlansPreview() {
+      const container = document.getElementById('preview-plans-badges');
+      container.innerHTML = durationPlans.map(plan => `
+        <div class="bg-gray-800/50 p-2 rounded border border-gray-700/50 flex items-center space-x-1.5 truncate">
+          <i class="fa-solid ${plan.icon} text-tech-accent text-xs"></i>
+          <span class="truncate">${escapeHtml(plan.name)}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderFrontendDurationOptions() {
+      const grid = document.getElementById('duration-options-grid');
+      grid.innerHTML = durationPlans.map(plan => {
+        const isSelected = (selectedDuration === plan.name);
+        return `
+          <button type="button" onclick="selectDurationOption('${escapeHtml(plan.name)}')" id="plan-btn-${plan.id}" class="duration-opt p-3.5 rounded-xl border text-left transition-all duration-200 ${isSelected ? 'bg-tech-accent text-black border-tech-accent shadow-neon-cyan font-bold' : 'border-gray-700 bg-tech-dark/60 hover:border-tech-accent text-white'}">
+            <div class="font-bold text-sm flex items-center justify-between">
+              <span>${escapeHtml(plan.name)}</span>
+              <i class="fa-solid ${plan.icon} ${isSelected ? 'text-black' : 'text-tech-accent'}"></i>
+            </div>
+            <div class="text-xs ${isSelected ? 'text-gray-900 font-semibold' : 'text-gray-400'} mt-1">${escapeHtml(plan.durationText)}</div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function updatePlanDescriptionBox(planName) {
+      const titleEl = document.getElementById('plan-desc-title');
+      const textEl = document.getElementById('plan-desc-text');
+
+      const targetPlan = durationPlans.find(p => p.name === planName);
+      if (!targetPlan) {
+        titleEl.innerText = '方案說明';
+        textEl.innerHTML = '點擊上方方案檢視詳細服務項目說明與注意事項...';
+        return;
+      }
+
+      titleEl.innerText = `【${targetPlan.name}】服務說明`;
+      if (targetPlan.descLines && targetPlan.descLines.length > 0) {
+        textEl.innerHTML = targetPlan.descLines.map(line => `
+          <div class="flex items-start space-x-1.5">
+            <span class="text-tech-neon font-bold">•</span>
+            <span>${escapeHtml(line)}</span>
+          </div>
+        `).join('');
+      } else {
+        textEl.innerHTML = '尚無詳細小字說明。';
+      }
+    }
+
+    // ==========================================
+    // STEP NAVIGATION
+    // ==========================================
+    function goToStep(stepNum) {
+      if (stepNum === 2 && !selectedDateStr) {
+        showToast('請先選擇預約日期！');
+        return;
+      }
+      if (stepNum === 3 && (!selectedDuration || !selectedTimeSlot)) {
+        showToast('請完整選擇服務時長方案與偏好抵達時間！');
+        return;
+      }
+
+      document.getElementById('step-1').classList.add('hidden');
+      document.getElementById('step-2').classList.add('hidden');
+      document.getElementById('step-3').classList.add('hidden');
+
+      for (let i = 1; i <= 3; i++) {
+        const dot = document.getElementById(`step-dot-${i}`);
+        const text = document.getElementById(`step-text-${i}`);
+        if (i < stepNum) {
+          dot.className = "w-10 h-10 rounded-full bg-tech-glow text-white font-bold flex items-center justify-center transition-all duration-300";
+          dot.innerHTML = `<i class="fa-solid fa-check"></i>`;
+          text.className = "text-xs font-semibold mt-2 text-tech-glow";
+        } else if (i === stepNum) {
+          dot.className = "w-10 h-10 rounded-full bg-tech-accent text-black font-bold flex items-center justify-center shadow-neon-cyan transition-all duration-300";
+          dot.innerText = i;
+          text.className = "text-xs font-semibold mt-2 text-tech-accent";
+        } else {
+          dot.className = "w-10 h-10 rounded-full bg-gray-800 text-gray-400 font-bold border border-gray-700 flex items-center justify-center transition-all duration-300";
+          dot.innerText = i;
+          text.className = "text-xs font-semibold mt-2 text-gray-500";
+        }
+      }
+
+      const line = document.getElementById('progress-line');
+      if (stepNum === 1) line.style.width = '0%';
+      if (stepNum === 2) line.style.width = '50%';
+      if (stepNum === 3) line.style.width = '100%';
+
+      document.getElementById(`step-${stepNum}`).classList.remove('hidden');
+
+      if (stepNum === 2) {
+        document.getElementById('selected-date-display').innerText = selectedDateStr;
+        renderFrontendDurationOptions();
+        renderTimeSlots();
+      }
+
+      if (stepNum === 3) {
+        document.getElementById('summary-date').innerText = selectedDateStr;
+        document.getElementById('summary-duration').innerText = selectedDuration;
+        document.getElementById('summary-slots').innerText = selectedTimeSlot;
+      }
+    }
+
+    function resetToStep1() {
+      selectedDateStr = '';
+      selectedDuration = '';
+      selectedTimeSlot = '';
+      renderCalendar();
+      goToStep(1);
+    }
+
+    // ==========================================
+    // STEP 1: CALENDAR
+    // ==========================================
+    function changeMonth(delta) {
+      calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + delta);
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      const year = calendarCurrentDate.getFullYear();
+      const month = calendarCurrentDate.getMonth();
+
+      document.getElementById('calendar-month-year').innerText = `${year}年 ${month + 1}月`;
+
+      const daysContainer = document.getElementById('calendar-days');
+      daysContainer.innerHTML = '';
+
+      const firstDayOfMonth = new Date(year, month, 1).getDay();
+      const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
+
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      for (let i = 0; i < firstDayOfMonth; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = "h-14 rounded-xl border border-gray-900 bg-tech-dark/20 opacity-30 pointer-events-none";
+        daysContainer.appendChild(emptyCell);
+      }
+
+      for (let day = 1; day <= totalDaysInMonth; day++) {
+        const currentCellDate = new Date(year, month, day);
+        currentCellDate.setHours(0,0,0,0);
+
+        const dateStr = formatDateString(year, month + 1, day);
+        const isPast = currentCellDate < today;
+
+        const isBlockedAllDay = blockedSlots.some(b => b.date === dateStr && (b.slot === '全天' || b.slot === 'ALL'));
+        const isDisabled = isPast || isBlockedAllDay;
+        const isSelected = (selectedDateStr === dateStr);
+
+        const dayBtn = document.createElement('button');
+        dayBtn.type = 'button';
+        
+        let cellClass = "h-14 rounded-xl border flex flex-col justify-between p-2 text-left transition-all relative overflow-hidden ";
+        
+        if (isDisabled) {
+          cellClass += "bg-gray-900/40 border-gray-800 text-gray-600 cursor-not-allowed opacity-50";
+        } else if (isSelected) {
+          cellClass += "bg-tech-accent text-black font-bold border-tech-accent shadow-neon-cyan scale-[1.02]";
+        } else {
+          cellClass += "bg-tech-dark/80 border-gray-800 text-gray-200 hover:border-tech-accent hover:shadow-neon-cyan cursor-pointer";
+        }
+
+        dayBtn.className = cellClass;
+
+        let statusBadge = '';
+        if (isPast) {
+          statusBadge = `<span class="text-[9px] text-gray-600">已過去</span>`;
+        } else if (isBlockedAllDay) {
+          statusBadge = `<span class="text-[9px] text-rose-500 font-semibold">特休/滿額</span>`;
+        } else if (isSelected) {
+          statusBadge = `<span class="text-[9px] text-black font-extrabold">已選擇</span>`;
+        } else {
+          statusBadge = `<span class="text-[9px] font-medium text-tech-neon">可預約</span>`;
+        }
+
+        dayBtn.innerHTML = `
+          <span class="text-sm font-bold">${day}</span>
+          <div class="flex justify-between items-center w-full">
+            ${statusBadge}
+          </div>
+        `;
+
+        if (!isDisabled) {
+          dayBtn.onclick = () => selectDate(dateStr);
+        }
+
+        daysContainer.appendChild(dayBtn);
+      }
+
+      const btnToStep2 = document.getElementById('btn-to-step2');
+      if (selectedDateStr) {
+        btnToStep2.disabled = false;
+        btnToStep2.className = "w-full md:w-auto px-8 py-3 rounded-xl bg-gradient-to-r from-tech-accent to-tech-glow hover:shadow-neon-cyan text-black font-bold transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer";
+      } else {
+        btnToStep2.disabled = true;
+        btnToStep2.className = "w-full md:w-auto px-8 py-3 rounded-xl bg-gray-800 text-gray-500 font-semibold cursor-not-allowed transition-all duration-300 flex items-center justify-center space-x-2";
+      }
+    }
+
+    function selectDate(dateStr) {
+      selectedDateStr = dateStr;
+      renderCalendar();
+      showToast(`已選擇預約日期：${dateStr}`);
+    }
+
+    function formatDateString(year, month, day) {
+      const m = month.toString().padStart(2, '0');
+      const d = day.toString().padStart(2, '0');
+      return `${year}-${m}-${d}`;
+    }
+
+    // ==========================================
+    // STEP 2: DURATION & SLOTS SELECTION
+    // ==========================================
+    function selectDurationOption(durationName) {
+      selectedDuration = durationName;
+      renderFrontendDurationOptions();
+      updatePlanDescriptionBox(durationName);
+      updateStep2ButtonState();
+    }
+
+    function renderTimeSlots() {
+      const amGrid = document.getElementById('am-slots-grid');
+      const pmGrid = document.getElementById('pm-slots-grid');
+
+      amGrid.innerHTML = '';
+      pmGrid.innerHTML = '';
+
+      const bookedForDate = appointments.filter(a => a.date === selectedDateStr).map(a => a.slot);
+      const blockedForDate = blockedSlots.filter(b => b.date === selectedDateStr).map(b => b.slot);
+
+      renderSlotButtonsGroup(AM_TIME_SLOTS, amGrid, bookedForDate, blockedForDate);
+      renderSlotButtonsGroup(PM_TIME_SLOTS, pmGrid, bookedForDate, blockedForDate);
+
+      updateStep2ButtonState();
+    }
+
+    function renderSlotButtonsGroup(slotsArray, container, bookedList, blockedList) {
+      slotsArray.forEach(slot => {
+        const isBooked = bookedList.includes(slot);
+        const isBlocked = blockedList.includes(slot) || blockedList.includes('全天');
+        const isDisabled = isBooked || isBlocked;
+        const isSelected = (selectedTimeSlot === slot);
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+
+        let btnClass = "py-3 px-3 rounded-xl border text-xs font-semibold flex flex-col items-center justify-center space-y-1 transition-all duration-200 ";
+
+        if (isDisabled) {
+          btnClass += "bg-gray-900/60 border-gray-800 text-gray-600 cursor-not-allowed opacity-60";
+        } else if (isSelected) {
+          btnClass += "bg-tech-accent text-black border-tech-accent shadow-neon-cyan font-bold scale-[1.02]";
+        } else {
+          btnClass += "bg-tech-dark/80 border-gray-800 text-gray-200 hover:border-tech-accent hover:text-tech-accent cursor-pointer";
+        }
+
+        btn.className = btnClass;
+
+        let statusText = '';
+        if (isBooked) statusText = '已被預約';
+        else if (isBlocked) statusText = '無法選擇';
+        else if (isSelected) statusText = '已選擇 ✓';
+        else statusText = '可選抵達時間';
+
+        btn.innerHTML = `
+          <span class="text-sm font-bold tracking-wider">${slot}</span>
+          <span class="text-[10px] ${isSelected ? 'text-black font-extrabold' : (isDisabled ? 'text-gray-600' : 'text-tech-neon')}">${statusText}</span>
+        `;
+
+        if (!isDisabled) {
+          btn.onclick = () => {
+            selectedTimeSlot = slot;
+            renderTimeSlots();
+          };
+        }
+
+        container.appendChild(btn);
+      });
+    }
+
+    function updateStep2ButtonState() {
+      const btnToStep3 = document.getElementById('btn-to-step3');
+      if (selectedDuration && selectedTimeSlot) {
+        btnToStep3.disabled = false;
+        btnToStep3.className = "px-8 py-3 rounded-xl bg-gradient-to-r from-tech-accent to-tech-glow hover:shadow-neon-cyan text-black font-bold transition-all duration-300 flex items-center space-x-2 cursor-pointer";
+      } else {
+        btnToStep3.disabled = true;
+        btnToStep3.className = "px-8 py-3 rounded-xl bg-gray-800 text-gray-500 font-semibold cursor-not-allowed transition-all duration-300 flex items-center space-x-2";
+      }
+    }
+
+    // ==========================================
+    // STEP 3: SUBMISSION
+    // ==========================================
+    function handleFormSubmit(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('cust-name').value.trim();
+      const phone = document.getElementById('cust-phone').value.trim();
+      const service = document.getElementById('cust-service').value;
+      const address = document.getElementById('cust-address').value.trim();
+      const notes = document.getElementById('cust-notes').value.trim();
+
+      if (!name || !phone || !service || !address) {
+        showToast('請完整填寫必填欄位！');
+        return;
+      }
+
+      const newBooking = {
+        id: 'JT' + Date.now(),
+        date: selectedDateStr,
+        duration: selectedDuration,
+        slot: selectedTimeSlot,
+        name: name,
+        phone: phone,
+        service: service,
+        address: address,
+        notes: notes,
+        createdAt: new Date().toLocaleString()
+      };
+
+      appointments.push(newBooking);
+      saveState();
+
+      currentFormattedBookingText = 
+`【潔特務清潔公司 - 線上預約單】
+-----------------------------
+預約日期：${selectedDateStr}
+服務方案：${selectedDuration}
+抵達時間：${selectedTimeSlot}
+客戶姓名：${name}
+聯絡電話：${phone}
+服務項目：${service}
+服務地址：${address}
+備註說明：${notes || '無'}
+-----------------------------
+(請將此內容貼上傳送給潔特務客服團隊，謝謝！)`;
+
+      fallbackCopyText(currentFormattedBookingText);
+
+      document.getElementById('modal-copy-preview').innerText = currentFormattedBookingText;
+      document.getElementById('success-modal').classList.remove('hidden');
+    }
+
+    function copyModalContent() {
+      const btnText = document.getElementById('copy-btn-text');
+      const success = fallbackCopyText(currentFormattedBookingText);
+      if (success) {
+        btnText.innerText = '複製成功！請點擊下方按鈕開啟 LINE';
+        showToast('預約內容已成功複製到剪貼簿！');
+        setTimeout(() => {
+          btnText.innerText = '一鍵複製預約單內容';
+        }, 3000);
+      } else {
+        showToast('複製失敗，請手動長按選擇上方文字複製');
+      }
+    }
+
+    function closeSuccessModal() {
+      document.getElementById('success-modal').classList.add('hidden');
+      resetToStep1();
+    }
+
+    function fallbackCopyText(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      textarea.style.top = '0';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      let successful = false;
+      try {
+        successful = document.execCommand('copy');
+      } catch (err) {
+        console.error('複製失敗:', err);
+      }
+      document.body.removeChild(textarea);
+      return successful;
+    }
+
+    // ==========================================
+    // ADMIN BACKEND LOGIC
+    // ==========================================
+    function openAdminModal() {
+      document.getElementById('admin-modal').classList.remove('hidden');
+      if (!isAdminLoggedIn) {
+        document.getElementById('admin-login-view').classList.remove('hidden');
+        document.getElementById('admin-panel-view').classList.add('hidden');
+        document.getElementById('admin-logout-btn').classList.add('hidden');
+      } else {
+        document.getElementById('admin-login-view').classList.add('hidden');
+        document.getElementById('admin-panel-view').classList.remove('hidden');
+        document.getElementById('admin-logout-btn').classList.remove('hidden');
+      }
+    }
+
+    function closeAdminModal() {
+      document.getElementById('admin-modal').classList.add('hidden');
+    }
+
+    function checkAdminPassword() {
+      const pass = document.getElementById('admin-pass-input').value;
+      if (pass === appConfig.adminPassword) {
+        isAdminLoggedIn = true;
+        document.getElementById('admin-login-view').classList.add('hidden');
+        document.getElementById('admin-panel-view').classList.remove('hidden');
+        document.getElementById('admin-logout-btn').classList.remove('hidden');
+        document.getElementById('admin-pass-input').value = '';
+        renderAdminRecords();
+        renderAdminPlansList();
+        renderBlockList();
+        showToast('管理員驗證成功');
+      } else {
+        showToast('密碼錯誤！請重新輸入');
+      }
+    }
+
+    function logoutAdmin() {
+      isAdminLoggedIn = false;
+      document.getElementById('admin-login-view').classList.remove('hidden');
+      document.getElementById('admin-panel-view').classList.add('hidden');
+      document.getElementById('admin-logout-btn').classList.add('hidden');
+      document.getElementById('admin-pass-input').value = '';
+      showToast('已安全登出後台');
+    }
+
+    function togglePasswordVisibility(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+
+    function updateAdminPassword() {
+      const newPass = document.getElementById('new-admin-pass').value.trim();
+      if (!newPass) {
+        showToast('請輸入新密碼！');
+        return;
+      }
+      if (newPass.length < 3) {
+        showToast('密碼長度請至少輸入 3 個字元！');
+        return;
+      }
+      appConfig.adminPassword = newPass;
+      saveState();
+      document.getElementById('new-admin-pass').value = '';
+      showToast('密碼已成功更新！可點擊右上角「登出後台」使用新密碼驗證');
+    }
+
+    function switchAdminTab(tabName) {
+      const tabRecords = document.getElementById('admin-tab-records');
+      const tabPlans = document.getElementById('admin-tab-plans');
+      const tabSettings = document.getElementById('admin-tab-settings');
+
+      const btnRecords = document.getElementById('tab-btn-records');
+      const btnPlans = document.getElementById('tab-btn-plans');
+      const btnSettings = document.getElementById('tab-btn-settings');
+
+      tabRecords.classList.add('hidden');
+      tabPlans.classList.add('hidden');
+      tabSettings.classList.add('hidden');
+
+      btnRecords.className = "pb-2 text-gray-400 hover:text-gray-200 transition-all";
+      btnPlans.className = "pb-2 text-gray-400 hover:text-gray-200 transition-all";
+      btnSettings.className = "pb-2 text-gray-400 hover:text-gray-200 transition-all";
+
+      if (tabName === 'records') {
+        tabRecords.classList.remove('hidden');
+        btnRecords.className = "pb-2 text-tech-accent border-b-2 border-tech-accent font-bold";
+        renderAdminRecords();
+      } else if (tabName === 'plans') {
+        tabPlans.classList.remove('hidden');
+        btnPlans.className = "pb-2 text-tech-accent border-b-2 border-tech-accent font-bold";
+        renderAdminPlansList();
+      } else {
+        tabSettings.classList.remove('hidden');
+        btnSettings.className = "pb-2 text-tech-accent border-b-2 border-tech-accent font-bold";
+      }
+    }
+
+    // --- TAB 1: RECORDS ---
+    function renderAdminRecords() {
+      const tbody = document.getElementById('admin-records-tbody');
+      document.getElementById('records-count').innerText = appointments.length;
+
+      if (appointments.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500">尚無預約紀錄</td></tr>`;
+        return;
+      }
+
+      const sorted = [...appointments].sort((a, b) => {
+        if (a.date !== b.date) return a.date.localeCompare(b.date);
+        return (a.slot || '').localeCompare(b.slot || '');
+      });
+
+      tbody.innerHTML = sorted.map(item => `
+        <tr class="hover:bg-tech-dark/40 transition-colors">
+          <td class="p-3">
+            <div class="font-bold text-tech-accent">${item.date}</div>
+            <div class="text-[11px] text-gray-300 font-medium">${escapeHtml(item.duration || '標準')} | ${escapeHtml(item.slot)}</div>
+          </td>
+          <td class="p-3">
+            <div class="font-medium text-white">${escapeHtml(item.name)}</div>
+          </td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded bg-tech-accent/10 border border-tech-accent/30 text-tech-accent text-[11px]">
+              ${escapeHtml(item.service)}
+            </span>
+          </td>
+          <td class="p-3">
+            <div>${escapeHtml(item.phone)}</div>
+            <div class="text-[11px] text-gray-400 truncate max-w-xs" title="${escapeHtml(item.address)}">${escapeHtml(item.address)}</div>
+          </td>
+          <td class="p-3 text-center">
+            <button onclick="deleteAppointment('${item.id}')" class="px-2.5 py-1 rounded bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white transition-all text-[11px]">
+              <i class="fa-solid fa-trash-can mr-1"></i>刪除
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function deleteAppointment(id) {
+      if (confirm('確定要刪除此筆預約嗎？')) {
+        appointments = appointments.filter(a => a.id !== id);
+        saveState();
+        renderAdminRecords();
+        renderCalendar();
+        showToast('預約已刪除！');
+      }
+    }
+
+    function clearAllDataPrompt() {
+      if (confirm('確定要清空所有紀錄嗎？')) {
+        appointments = [];
+        saveState();
+        renderAdminRecords();
+        renderCalendar();
+        showToast('紀錄已清空');
+      }
+    }
+
+    // --- TAB 2: PLANS MANAGEMENT ---
+    function renderAdminPlansList() {
+      const container = document.getElementById('admin-plans-list');
+      if (durationPlans.length === 0) {
+        container.innerHTML = `<div class="col-span-full text-center text-gray-500 py-6">目前尚未建立任何預約方案</div>`;
+        return;
+      }
+
+      container.innerHTML = durationPlans.map(plan => `
+        <div class="bg-tech-dark/70 border border-gray-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <i class="fa-solid ${plan.icon} text-tech-accent text-base"></i>
+                <h5 class="font-bold text-white text-sm">${escapeHtml(plan.name)}</h5>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-gray-800 text-tech-neon border border-gray-700">${escapeHtml(plan.durationText)}</span>
+            </div>
+            <!-- Subtext lines preview -->
+            <div class="mt-2.5 bg-gray-900/60 p-2.5 rounded-lg border border-gray-800 text-xs text-gray-300 space-y-1">
+              <div class="text-[10px] text-gray-500 font-semibold uppercase mb-1">小字說明內容：</div>
+              ${(plan.descLines && plan.descLines.length > 0) ? plan.descLines.map(line => `
+                <div class="flex items-start space-x-1.5 text-[11px]">
+                  <span class="text-tech-accent">•</span>
+                  <span>${escapeHtml(line)}</span>
+                </div>
+              `).join('') : '<span class="text-gray-600 text-[11px]">（無小字說明）</span>'}
+            </div>
+          </div>
+
+          <div class="flex justify-end space-x-2 pt-2 border-t border-gray-800/60">
+            <button onclick="openPlanEditModal('${plan.id}')" class="px-3 py-1 bg-gray-800 hover:bg-gray-700 text-tech-accent border border-gray-700 rounded text-xs transition-colors">
+              <i class="fa-solid fa-pen-to-square mr-1"></i>修改
+            </button>
+            <button onclick="deletePlanItem('${plan.id}')" class="px-3 py-1 bg-rose-500/20 hover:bg-rose-600 text-rose-300 hover:text-white rounded text-xs transition-colors">
+              <i class="fa-solid fa-trash-can mr-1"></i>刪除
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openPlanEditModal(planId) {
+      const modal = document.getElementById('plan-edit-modal');
+      const titleEl = document.getElementById('plan-modal-title');
+
+      if (planId) {
+        const plan = durationPlans.find(p => p.id === planId);
+        if (plan) {
+          titleEl.innerText = '修改預約時長方案';
+          document.getElementById('edit-plan-id').value = plan.id;
+          document.getElementById('edit-plan-name').value = plan.name;
+          document.getElementById('edit-plan-duration').value = plan.durationText;
+          document.getElementById('edit-plan-icon').value = plan.icon || 'fa-bolt';
+          document.getElementById('edit-plan-desc').value = (plan.descLines || []).join('\n');
+        }
+      } else {
+        titleEl.innerText = '新增預約時長方案';
+        document.getElementById('edit-plan-id').value = '';
+        document.getElementById('edit-plan-name').value = '';
+        document.getElementById('edit-plan-duration').value = '';
+        document.getElementById('edit-plan-icon').value = 'fa-bolt';
+        document.getElementById('edit-plan-desc').value = '';
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closePlanEditModal() {
+      document.getElementById('plan-edit-modal').classList.add('hidden');
+    }
+
+    function savePlanItem(event) {
+      event.preventDefault();
+
+      const planId = document.getElementById('edit-plan-id').value;
+      const name = document.getElementById('edit-plan-name').value.trim();
+      const durationText = document.getElementById('edit-plan-duration').value.trim();
+      const icon = document.getElementById('edit-plan-icon').value;
+      const descRaw = document.getElementById('edit-plan-desc').value.trim();
+
+      const descLines = descRaw ? descRaw.split('\n').map(l => l.trim()).filter(l => l.length > 0) : [];
+
+      if (!name || !durationText) {
+        showToast('請填寫必填欄位！');
+        return;
+      }
+
+      if (planId) {
+        // Edit existing
+        const planIndex = durationPlans.findIndex(p => p.id === planId);
+        if (planIndex !== -1) {
+          durationPlans[planIndex] = { id: planId, name, durationText, icon, descLines };
+          showToast('時長方案修改成功！');
+        }
+      } else {
+        // Add new
+        const newPlan = {
+          id: 'plan_' + Date.now(),
+          name,
+          durationText,
+          icon,
+          descLines
+        };
+        durationPlans.push(newPlan);
+        showToast('新時長方案已新增！');
+      }
+
+      saveState();
+      renderAdminPlansList();
+      renderFrontendPlansPreview();
+      renderFrontendDurationOptions();
+      closePlanEditModal();
+    }
+
+    function deletePlanItem(planId) {
+      if (confirm('確定要刪除此時長方案嗎？')) {
+        durationPlans = durationPlans.filter(p => p.id !== planId);
+        saveState();
+        renderAdminPlansList();
+        renderFrontendPlansPreview();
+        renderFrontendDurationOptions();
+        showToast('方案已成功刪除！');
+      }
+    }
+
+    // --- TAB 3: BLOCK SLOTS & PASSWORD ---
+    function addBlockSlot() {
+      const date = document.getElementById('block-date-input').value;
+      const time = document.getElementById('block-time-input').value.trim();
+
+      if (!date || !time) {
+        showToast('請選擇日期與輸入時段！');
+        return;
+      }
+
+      blockedSlots.push({
+        id: 'BLK' + Date.now(),
+        date: date,
+        slot: time
+      });
+
+      saveState();
+      renderBlockList();
+      renderCalendar();
+      document.getElementById('block-time-input').value = '';
+      showToast('已新增封鎖紀錄！');
+    }
+
+    function renderBlockList() {
+      const ul = document.getElementById('block-list-ul');
+      if (blockedSlots.length === 0) {
+        ul.innerHTML = `<li class="text-gray-500 py-1">目前無手動封鎖紀錄</li>`;
+        return;
+      }
+
+      ul.innerHTML = blockedSlots.map(b => `
+        <li class="flex items-center justify-between bg-tech-dark p-2 rounded border border-gray-800">
+          <span><strong class="text-tech-accent">${b.date}</strong> - ${b.slot}</span>
+          <button onclick="removeBlockSlot('${b.id}')" class="text-rose-400 hover:text-rose-300 text-xs">解除</button>
+        </li>
+      `).join('');
+    }
+
+    function removeBlockSlot(id) {
+      blockedSlots = blockedSlots.filter(b => b.id !== id);
+      saveState();
+      renderBlockList();
+      renderCalendar();
+      showToast('已解除封鎖');
+    }
+
+    function updateAdminPassword() {
+      const newPass = document.getElementById('new-admin-pass').value.trim();
+      if (!newPass) {
+        showToast('請輸入新密碼！');
+        return;
+      }
+      appConfig.adminPassword = newPass;
+      saveState();
+      document.getElementById('new-admin-pass').value = '';
+      showToast('密碼已成功更新！');
+    }
+
+    // ==========================================
+    // UTILS
+    // ==========================================
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      toastMsg.innerText = msg;
+
+      toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3000);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/[&<>"']/g, function(m) {
+        return {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;'
+        }[m];
+      });
+    }
+  </script>
+</body>
+</html>
