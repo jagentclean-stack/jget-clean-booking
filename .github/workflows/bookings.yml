@@ -1,0 +1,61 @@
+name: Update Bookings Database
+on:
+  workflow_dispatch:
+    inputs:
+      booking-json:
+        description: "Booking record as JSON string"
+        required: true
+        type: string
+jobs:
+  record-booking:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Append booking record
+        run: |
+          set -e
+          cd /home/runner/work/jget-clean-booking/jget-clean-booking
+          BOOKING='${{ github.event.inputs.booking-json }}'
+          # Validate JSON
+          echo "$BOOKING" | python3 -c "import json,sys; json.load(sys.stdin)" || { echo "Invalid JSON"; exit 1; }
+          # Merge into bookings.json
+          python3 - <<'PYEOF'
+          import json, os, datetime
+          data = json.load(open('bookings.json'))
+          booking = json.loads(os.environ['BOOKING'])
+          records = data.setdefault('records', [])
+          date = booking['date']
+          times = booking['times']
+          # Conflict re-check inside workflow (single-writer, atomic per run)
+          for r in records:
+              if r['date'] == date and set(times) & set(r['times']):
+                  print('CONFLICT:' + json.dumps({'date': date, 'times': times, 'conflictWith': r['times']}))
+                  raise SystemExit(2)
+          records.append({
+              'date': date,
+              'times': times,
+              'name': booking.get('name', ''),
+              'phone': booking.get('phone', ''),
+              'service': booking.get('service', ''),
+              'address': booking.get('address', ''),
+              'notes': booking.get('notes', ''),
+              'createdAt': datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).isoformat()
+          })
+          # Also mark slots as booked
+          for s in data.setdefault('slots', []):
+              if s['date'] == date:
+                  s['times'] = sorted(set(s['times']) | set(times))
+          json.dump(data, open('bookings.json', 'w'), ensure_ascii=False, indent=2)
+          print('OK')
+          PYEOF
+        env:
+          BOOKING: ${{ github.event.inputs.booking-json }}
+      - name: Commit and push
+        run: |
+          cd /home/runner/work/jget-clean-booking/jget-clean-booking
+          git config user.name "jget-clean-booking[bot]"
+          git config user.email "bot@jget-clean-booking.github.io"
+          git add bookings.json
+          git commit -m "bookings: add reservation record"
+          git push
