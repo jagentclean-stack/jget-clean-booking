@@ -1,6 +1,13 @@
 {
   "version": 1,
-  "slots": [],
+  "slots": [
+    {
+      "date": "2026-08-16",
+      "times": [
+        "10:00-11:00"
+      ]
+    }
+  ],
   "blocked": [],
   "records": []
 }
